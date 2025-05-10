@@ -10,7 +10,9 @@ class NanoEditor(ctk.CTk):
         
         # Configure window
         self.title("PyAssembly")
-        self.geometry("1000x1000")
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        self.geometry(f"{int(screen_width * 0.50)}x{screen_height}")
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
         
@@ -45,13 +47,7 @@ class NanoEditor(ctk.CTk):
         self.exit_btn = ctk.CTkButton(self.menu_frame, text="Exit (^X)", command=self.confirm_exit, width=100)
         self.exit_btn.pack(side="left", padx=5)
 
-        self.run_btn = ctk.CTkButton(
-            self.menu_frame, 
-            text="Run", 
-            command=self.run_code, 
-            width=100, 
-            fg_color="green"
-        )
+        self.run_btn = ctk.CTkButton(self.menu_frame, text="Run", command=self.run_code, width=100, fg_color="green")
         self.run_btn.pack(side="right", padx=5)
         
     def create_text_area(self):
@@ -68,11 +64,6 @@ class NanoEditor(ctk.CTk):
         self.text_area = ctk.CTkTextbox(self.text_frame, font=("Courier", 12), wrap="none")
         self.text_area.pack(side="left", fill="both", expand=True)
         
-        # Create scrollbars
-        self.y_scrollbar = ctk.CTkScrollbar(self.text_frame, command=self.text_area.yview)
-        self.y_scrollbar.pack(side="right", fill="y")
-        
-        
         # Bind text changes to update line numbers and modified status
         self.text_area.bind("<<Modified>>", self.on_text_modified)
         self.text_area.bind("<KeyRelease>", self.update_line_numbers)
@@ -82,22 +73,18 @@ class NanoEditor(ctk.CTk):
     
     def create_output_area(self):
         # Create output area frame
-        self.output_frame = ctk.CTkFrame(self, height=200)
+        self.output_frame = ctk.CTkFrame(self, height=100)
         self.output_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
         
         # Output text area
-        self.output_area = ctk.CTkTextbox(self.output_frame, font=("Courier", 12), wrap="none")
+        self.output_area = ctk.CTkTextbox(self.output_frame, font=("Courier", 12), wrap="word")
         self.output_area.pack(fill="both", expand=True)
         
-
+        # Allow resizing of the output area
+        self.output_frame.pack_propagate(False)
         self.output_area.configure(state="normal")
         self.output_area.insert("1.0", "Output will be displayed here...\n")
         self.output_area.configure(state="disabled")
-        # Bind output area to update line numbers
-        self.output_area.bind("<KeyRelease>", self.update_line_numbers)
-        self.output_area.bind("<<Modified>>", self.on_text_modified)
-        # Initial output area line numbers
-        self.update_line_numbers()
         
     def create_status_bar(self):
         # Create status bar frame
@@ -187,17 +174,15 @@ class NanoEditor(ctk.CTk):
                 "Unsaved Changes",
                 "Save changes before exiting?"
             )
-            
             if response is None:  # Cancel
                 return
             elif response:  # Yes
                 self.save_file()
-                
         self.quit()
-    def run_code(self):
-        # clear output area
-        #delete files
 
+
+    # TODO: Add functionality to run the code on various platforms with different architectures 
+    def run_code(self):
         try:
             # clear output area
             self.output_area.configure(state="normal")
